@@ -7,6 +7,8 @@ import com.github.tlind.refactoredturingmachine.components.StopCommand;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +17,7 @@ public class TuringInterpreter extends CommandList {
 
     private static TuringMachine turingMachine;
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         String program = readProgram(args);
         executeProgram(program);
     }
@@ -48,9 +50,14 @@ public class TuringInterpreter extends CommandList {
     }
 
 
-    public static void executeProgram(String program) {
+    public static void executeProgram(String program) throws Exception {
         // Initialize the turing machine
-        turingMachine = new TuringMachine(0);
+        turingMachine = new TuringMachine(new Integer(-1));
+
+        Map<String, Integer> constants = new HashMap<>();
+        constants.put("forward", 8);
+        constants.put("back", -7);
+
 
         // Remove all multiline comments
         Pattern multiLineCommentPattern = Pattern.compile("/\\*.*?\\*/", Pattern.DOTALL);
@@ -65,7 +72,7 @@ public class TuringInterpreter extends CommandList {
         Pattern setValuesPattern = Pattern.compile(INITIALIZE_VALUES + "\\((#.*?)\\)");
         Pattern setPositionPattern = Pattern.compile(SET_POSITION + "\\((\\d+)\\)");
         Pattern setCommandPattern = Pattern.compile(CMD + "\\(\\s*" + AWARENESS + "=(\\d), " + PAGE + "=(\\d),\\s*(.*?)\\s*\\);", Pattern.DOTALL);
-        Pattern runPattern = Pattern.compile("(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + Pattern.quote(RUN) + "\\(\"(.*?)\"\\);");
+        Pattern runPattern = Pattern.compile("(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + Pattern.quote(RUN) + "\\(\\s*\\);");
         Pattern printPattern = Pattern.compile("(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + Pattern.quote(PRINT) + "\\(\\s*\\);|(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + PRINT + "\\(\\s*\"(.*?)\"\\s*\\);");
 
         // Matcher for setValues command
@@ -75,14 +82,14 @@ public class TuringInterpreter extends CommandList {
             String[] characterArray = characters.split("\\s+"); // Split the characters by whitespace
             setValues(characterArray);
         }
-
-
         // Matcher for setPosition command
         Matcher setPositionMatcher = setPositionPattern.matcher(program);
         while (setPositionMatcher.find()) {
             int position = Integer.parseInt(setPositionMatcher.group(1));
             setPosition(position);
         }
+
+
 
         Matcher setCommandMatcher = setCommandPattern.matcher(program);
         while (setCommandMatcher.find()) {
@@ -97,19 +104,19 @@ public class TuringInterpreter extends CommandList {
                 Command cmd;
 
                 if (commandName.equals(FUTURE_STOP))
-                    cmd = (m) -> m.stop();
+                    cmd = TuringMachine::stop;
                 else if (commandName.equals(FUTURE_PRINT))
-                    cmd = (m) -> m.printTape();
+                    cmd = TuringMachine::printTape;
                 else if (commandName.equals(POSITION))
-                    cmd = (m) -> m.printPosition();
+                    cmd = TuringMachine::printPosition;
                 else if (commandName.equals(READ_TAPE))
-                    cmd = (m) -> m.printTapeAt();
+                    cmd = TuringMachine::printTapeAt;
                 else if (commandName.equals(READ_AWARENESS))
-                    cmd = (m) -> m.printAwareness();
+                    cmd = TuringMachine::printAwareness;
                 else if (commandName.equals(FUTURE_GOTONEXTSEC))
-                    cmd = (m) -> m.goToNextSection();
+                    cmd = TuringMachine::goToNextSection;
                 else if (commandName.equals(FUTURE_GOTOPREVSEC))
-                    cmd = (m) -> m.goToPrevSection();
+                    cmd = TuringMachine::goToPrevSection;
                 else if (commandName.equals(FUTURE_SETTAPE)) {
                     final int value = Integer.parseInt(commandArgs);
                     cmd = (m) -> m.setTape(value);
@@ -120,12 +127,8 @@ public class TuringInterpreter extends CommandList {
                     final int value = Integer.parseInt(commandArgs);
                     cmd = (m) -> m.goToPage(value);
                 } else {
-                    System.out.println("Unknown command: " + commandName);
-                    cmd = (m) -> {
-                    };
+                    throw new RuntimeException("Invalid command: " + commandName);
                 }
-
-
                 turingMachine.addCommand(page, awareness, cmd, false);
             }
         }
@@ -149,7 +152,11 @@ public class TuringInterpreter extends CommandList {
         }
     }
 
-    public static void setValues(String[] data) {
+    public static void setValues(String[] data) throws Exception {
+        if(!data[0].equals(SECTION_CHAR)) {
+            throw new Exception("First value must be "+SECTION_CHAR+" to indicate the start of the tape.");
+        }
+
         // Parse valuesString and set the values on the Turing machine.
         int[] values = new int[data.length];
         for (int i = 0; i < data.length; i++) {
@@ -158,12 +165,19 @@ public class TuringInterpreter extends CommandList {
             else
                 values[i] = Integer.parseInt(data[i]);
         }
-        turingMachine = new TuringMachine(turingMachine.getPosition(), values);
+        int pos = turingMachine.getPosition();
+        if(data[0].equals(SECTION_CHAR)) {
+            pos += 1;
+        }
+        turingMachine = new TuringMachine(pos, values);
     }
 
     public static void setPosition(int position) {
-        // Set the position on the Turing machine.
-        turingMachine.setPosition(position);
+        if(turingMachine.getTapeAt(0) == SECTION) {
+            position += 1;
+        }
+        turingMachine.move(position - turingMachine.getPosition());
+        turingMachine.setAwareness(turingMachine.getTape());
     }
 
 

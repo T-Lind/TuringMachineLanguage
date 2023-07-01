@@ -1,18 +1,16 @@
 print("Starting turing machine...");
 
 setValues(# 2 0);
-
 setPosition(0);
 
-print();
+//const setAmount = 3;
+
 setCommand(
     AWARENESS=2, PAGE=0,
-        ?setTape(3)
-        ?move(1)
-        ?goToPage(1)
-        ?print("now.")
-        ?print()
+        ?setTape(setAmount)
+        ?awareness()
         ?stop()
+
 );
 
 run();
