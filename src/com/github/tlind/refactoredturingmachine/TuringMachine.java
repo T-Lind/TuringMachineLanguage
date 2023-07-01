@@ -1,13 +1,12 @@
-package com.github.tlind.turingmachine;
+package com.github.tlind.refactoredturingmachine;
 
 
-import com.github.tlind.turingmachine.components.Command;
-import com.github.tlind.turingmachine.components.CommandList;
+import com.github.tlind.refactoredturingmachine.components.Command;
+import com.github.tlind.refactoredturingmachine.components.CommandList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-
 
 public class TuringMachine extends CommandList {
 
@@ -77,11 +76,11 @@ public class TuringMachine extends CommandList {
     }
 
     public void beginCommand(Integer page, Integer awareness) {
-//        if (page >= pages.size())
-//            pages.add(new HashMap<>());
-//        if (pages.get(page) == null || pages.get(page).get(awareness) == null) {
-//            pages.get(page).put(awareness, new ArrayList<>());
-//        }
+        if (page >= pages.size())
+            pages.add(new HashMap<>());
+        if (pages.get(page) == null || pages.get(page).get(awareness) == null) {
+            pages.get(page).put(awareness, new ArrayList<>());
+        }
         pages.get(page).get(awareness).add((m -> {
             m.setAwareness(m.getTape());
             m.printTape();
@@ -191,7 +190,7 @@ public class TuringMachine extends CommandList {
                     printStr.append(SECTION_CHAR).append(" ");
                 }
             } else {
-                printStr.append("Ø ");
+                printStr.append("_ ");
             }
         }
         System.out.println(printStr);
@@ -207,6 +206,10 @@ public class TuringMachine extends CommandList {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     private static Integer removeNull(Integer input) {

@@ -1,13 +1,13 @@
-package com.github.tlind.turingmachine;
+package com.github.tlind.refactoredturingmachine;
 
-import com.github.tlind.turingmachine.components.Command;
-import com.github.tlind.turingmachine.components.StopCommand;
+import com.github.tlind.refactoredturingmachine.components.Command;
+import com.github.tlind.refactoredturingmachine.components.StopCommand;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Scanner;
 
 public class RefactoredTuringInterpreter {
 
@@ -74,6 +74,7 @@ public class RefactoredTuringInterpreter {
         // Matcher for setCommand command
         Matcher setCommandMatcher = setCommandPattern.matcher(program);
         while (setCommandMatcher.find()) {
+            System.out.println("command found");
             int awareness = Integer.parseInt(setCommandMatcher.group(1));
             int page = Integer.parseInt(setCommandMatcher.group(2));
             String commandDetails = setCommandMatcher.group(3);
