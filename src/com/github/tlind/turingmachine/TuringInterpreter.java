@@ -134,9 +134,7 @@ public class TuringInterpreter extends CommandList {
                         machine.addCommand(page, awareness, (m) -> m.goToPrevSection());
                     } else if (inside.startsWith(FUTURE_SETTAPE)) {
                         final int value = onlyKeepInt(getInsideDelimiters(inside));
-                        machine.addCommand(page, awareness, (m) -> {
-                            m.setTape(value);
-                        }, false);
+                        machine.addCommand(page, awareness, (m) -> m.setTape(value), false);
                     } else if (inside.startsWith(FUTURE_MOVE)) {
                         final int value = onlyKeepInt(getInsideDelimiters(inside));
                         machine.addCommand(page, awareness, (m) -> {

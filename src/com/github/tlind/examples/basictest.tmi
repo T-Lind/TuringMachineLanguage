@@ -1,9 +1,8 @@
 print("Starting turing machine...");
 
 setValues(# 2 0);
-setPosition(0);
 
-generate();
+setPosition(0);
 
 print();
 setCommand(
@@ -11,10 +10,11 @@ setCommand(
         ?setTape(3)
         ?move(1)
         ?goToPage(1)
+        ?print("now.")
         ?print()
         ?stop()
 );
 
 run();
-print();
 print("Finished.");
+print();
