@@ -1,4 +1,4 @@
-package com.github.tlind.turingmachine.highlevel;
+package com.github.tlind.turingmachine.components;
 
 public class CommandList {
     public static int STOP = Integer.MAX_VALUE;

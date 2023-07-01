@@ -2,7 +2,7 @@ package com.github.tlind.turingmachine;
 
 
 import com.github.tlind.turingmachine.components.Command;
-import com.github.tlind.turingmachine.highlevel.CommandList;
+import com.github.tlind.turingmachine.components.CommandList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,7 +190,7 @@ public class TuringMachine extends CommandList {
                     printStr.append(SECTION_CHAR).append(" ");
                 }
             } else {
-                printStr.append("Ø ");
+                printStr.append("_ ");
             }
         }
         System.out.println(printStr);

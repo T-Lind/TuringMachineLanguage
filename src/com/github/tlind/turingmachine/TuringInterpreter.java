@@ -1,7 +1,7 @@
 package com.github.tlind.turingmachine;
 
 
-import com.github.tlind.turingmachine.highlevel.CommandList;
+import com.github.tlind.turingmachine.components.CommandList;
 
 import java.io.File;
 import java.io.FileNotFoundException;

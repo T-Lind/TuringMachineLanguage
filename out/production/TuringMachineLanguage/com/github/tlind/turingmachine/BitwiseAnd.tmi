@@ -7,7 +7,7 @@
 */
 print("Starting turing machine...");
 
-setValues(1 0 1 0 1 1 1 2 0 1 1 0 1 1 1 2);
+setValues(# 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2);
 setPosition(0);
 
 const forward = 8;
@@ -30,6 +30,7 @@ setCommand(
         ?goToPage(2)
         ?print(?readTape())
 );
+
 
 setCommand(
     AWARENESS=2, PAGE=0,
@@ -62,5 +63,6 @@ setCommand(
 );
 
 run();
+
 print("Final result:");
 print();

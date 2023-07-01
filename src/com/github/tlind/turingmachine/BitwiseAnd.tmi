@@ -31,6 +31,7 @@ setCommand(
         ?print(?readTape())
 );
 
+
 setCommand(
     AWARENESS=2, PAGE=0,
         ?stop()
@@ -62,5 +63,6 @@ setCommand(
 );
 
 run();
+
 print("Final result:");
 print();

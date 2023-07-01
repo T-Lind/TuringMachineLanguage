@@ -1,40 +1,20 @@
-/*
-    Example program using a turing machine
-    Output should be the following:
-
-    Starting turing machine...
-    2 1 1 1
-    2 4 1 1
-    Finished.
-*/
 print("Starting turing machine...");
 
-setValues(2 2 1 1);
+setValues(# 2 0);
 setPosition(0);
 
 generate();
 
 print();
 setCommand(
-    // Setting first commands ?
     AWARENESS=2, PAGE=0,
-        ?print("A.")
         ?setTape(3)
         ?move(1)
         ?goToPage(1)
         ?print()
-);
-setCommand(
-    AWARENESS=2, PAGE=1,
-    ?print("B.")
-    ?setTape(4) // Set the value several positions before the start value to 4
-    ?stop()
-    // Print the final results
-    ?print()
+        ?stop()
 );
 
-
-print("Finished commands.");
 run();
+print();
 print("Finished.");
-
