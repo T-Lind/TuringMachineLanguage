@@ -19,7 +19,7 @@ public class CommandList {
     public static String COMMENT = "//";
     public static String[] BLOCK_COMMENT = {"/*", "*/"};
     public static String INTEGERS = "-0123456789";
-    public static String VAL = "val";
+    public static String VAL = "const";
 
     public static String PAGE = "PAGE=";
     public static String AWARENESS = "AWARENESS=";

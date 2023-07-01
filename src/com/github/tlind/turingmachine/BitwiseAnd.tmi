@@ -3,15 +3,15 @@
 
     Expected output:
     Final result:
-    # 1 0 1 0 1 1 1 2 # 0 0 1 0 1 1 1 2
+    # 1 0 1 0 1 1 0 2 # 0 0 1 0 1 1 0 2
 */
 print("Starting turing machine...");
 
 setValues(# 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2);
 setPosition(0);
 
-val forward = 8;
-val back = -7;
+const forward = 8;
+const back = -7;
 
 
 generate();
