@@ -102,7 +102,7 @@ public class TuringMachine extends CommandList {
     public void run() {
         while (page != STOP) {
             var commands = pages.get(page).get(awareness);
-            if (commands != null) {
+            if (commands != null && !commands.isEmpty()) {
                 for (Command command : commands) {
                     command.invoke(this);
                 }
@@ -134,6 +134,7 @@ public class TuringMachine extends CommandList {
                     position--;
             }
         }
+        awareness = getTape();
     }
 
     public void goToNextSection() {

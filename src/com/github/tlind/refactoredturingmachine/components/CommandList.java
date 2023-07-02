@@ -62,7 +62,7 @@ public class CommandList {
             FUTURE_MOVE = CONNECTOR + "move";
             FUTURE_GOTOPAGE = CONNECTOR + "goToPage";
 
-            RUN = MACHINE_SYMBOL + CONNECTOR + "run()";
+            RUN = MACHINE_SYMBOL + CONNECTOR + "run";
 
             FUTURE_GOTONEXTSEC = CONNECTOR + "nextSection";
             FUTURE_GOTOPREVSEC = CONNECTOR + "prevSection";

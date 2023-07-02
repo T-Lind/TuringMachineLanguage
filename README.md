@@ -4,7 +4,7 @@ Color Code Key
 
 2. ?
 
-3. print setTape run setValues setPosition generate setCommand move goToPage readTape stop generate nextSection prevSection position
+3. print setTape run setValues setPosition generate setCommand move goToPage readTape stop generate nextSection prevSection position awareness position
 
 4. AWARENESS PAGE
 

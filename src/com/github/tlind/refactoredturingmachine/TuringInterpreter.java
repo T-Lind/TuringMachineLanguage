@@ -6,10 +6,7 @@ import com.github.tlind.refactoredturingmachine.components.StopCommand;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,8 +52,6 @@ public class TuringInterpreter extends CommandList {
         turingMachine = new TuringMachine(new Integer(-1));
 
         Map<String, Integer> constants = new HashMap<>();
-        constants.put("forward", 8);
-        constants.put("back", -7);
 
 
         // Remove all multiline comments
@@ -67,94 +62,112 @@ public class TuringInterpreter extends CommandList {
         Pattern singleLineCommentPattern = Pattern.compile("//.*?$", Pattern.MULTILINE);
         program = singleLineCommentPattern.matcher(program).replaceAll("");
 
+        // Define a pattern for the const declaration
+        Pattern constPattern = Pattern.compile(VAL + "\\s+(\\w+)\\s*=\\s*(-?\\d+)\\s*;");
 
-        // Define the patterns for the commands
-        Pattern setValuesPattern = Pattern.compile(INITIALIZE_VALUES + "\\((#.*?)\\)");
-        Pattern setPositionPattern = Pattern.compile(SET_POSITION + "\\((\\d+)\\)");
-        Pattern setCommandPattern = Pattern.compile(CMD + "\\(\\s*" + AWARENESS + "=(\\d), " + PAGE + "=(\\d),\\s*(.*?)\\s*\\);", Pattern.DOTALL);
-        Pattern runPattern = Pattern.compile("(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + Pattern.quote(RUN) + "\\(\\s*\\);");
-        Pattern printPattern = Pattern.compile("(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + Pattern.quote(PRINT) + "\\(\\s*\\);|(?<!\\Q" + FUTURE_SYMBOL + "\\E)" + PRINT + "\\(\\s*\"(.*?)\"\\s*\\);");
 
-        // Matcher for setValues command
-        Matcher setValuesMatcher = setValuesPattern.matcher(program);
-        if (setValuesMatcher.find()) {
-            String characters = setValuesMatcher.group(1); // Retrieve the characters within the parentheses
-            String[] characterArray = characters.split("\\s+"); // Split the characters by whitespace
-            setValues(characterArray);
-        }
-        // Matcher for setPosition command
-        Matcher setPositionMatcher = setPositionPattern.matcher(program);
-        while (setPositionMatcher.find()) {
-            int position = Integer.parseInt(setPositionMatcher.group(1));
-            setPosition(position);
+        // Create a matcher with the const pattern and your program string
+        Matcher constMatcher = constPattern.matcher(program);
+
+        // While the matcher finds const declarations
+        while (constMatcher.find()) {
+            System.out.println("Found const declaration: " + constMatcher.group());
+            // Extract the constant name and its value
+            String name = constMatcher.group(1);
+            int value = Integer.parseInt(constMatcher.group(2));
+
+            // Add the constant to the map
+            constants.put(name, value);
         }
 
+        Pattern anyFunctionPattern = Pattern.compile("(\\w+)\\((.*?)\\);", Pattern.DOTALL);
 
+        Matcher commandMatcher = anyFunctionPattern.matcher(program);
+        while (commandMatcher.find()) {
+            String funcName = commandMatcher.group(1);
+            String funcArgs = commandMatcher.group(2);
 
-        Matcher setCommandMatcher = setCommandPattern.matcher(program);
-        while (setCommandMatcher.find()) {
-            int awareness = Integer.parseInt(setCommandMatcher.group(1));
-            int page = Integer.parseInt(setCommandMatcher.group(2));
-            String commandDetails = setCommandMatcher.group(3);
-            Pattern commandPattern = Pattern.compile("\\?([^\\s(]+)\\((.*?)\\)");
-            Matcher commandMatcher = commandPattern.matcher(commandDetails);
-            while (commandMatcher.find()) {
-                String commandName = commandMatcher.group(1);
-                String commandArgs = commandMatcher.group(2);
-                Command cmd;
+            if (funcName.equals(INITIALIZE_VALUES)) {
+                String[] characterArray = funcArgs.split("\\s+"); // Split the characters by whitespace
+                setValues(characterArray);
+            } else if (funcName.equals(SET_POSITION)) {
+                int position = Integer.parseInt(funcArgs);
+                setPosition(position);
+            } else if (funcName.equals(CMD)) {
+                Matcher setCommandMatcher = Pattern.compile(AWARENESS + "=(\\d+),\\s*" + PAGE + "=(\\d+),\\s*(.*?)\\s*\\);", Pattern.DOTALL).matcher(funcArgs + ");");
+                if (setCommandMatcher.find()) {
+                    int awareness = Integer.parseInt(setCommandMatcher.group(1));
+                    int page = Integer.parseInt(setCommandMatcher.group(2));
+                    String commandDetails = setCommandMatcher.group(3);
+                    Matcher innerCommandMatcher = Pattern.compile("\\?([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
+                    while (innerCommandMatcher.find()) {
+                        String innerCommandName = innerCommandMatcher.group(1);
+                        String innerCommandArgs = innerCommandMatcher.group(2);
 
-                if (commandName.equals(FUTURE_STOP))
-                    cmd = TuringMachine::stop;
-                else if (commandName.equals(FUTURE_PRINT))
-                    cmd = TuringMachine::printTape;
-                else if (commandName.equals(POSITION))
-                    cmd = TuringMachine::printPosition;
-                else if (commandName.equals(READ_TAPE))
-                    cmd = TuringMachine::printTapeAt;
-                else if (commandName.equals(READ_AWARENESS))
-                    cmd = TuringMachine::printAwareness;
-                else if (commandName.equals(FUTURE_GOTONEXTSEC))
-                    cmd = TuringMachine::goToNextSection;
-                else if (commandName.equals(FUTURE_GOTOPREVSEC))
-                    cmd = TuringMachine::goToPrevSection;
-                else if (commandName.equals(FUTURE_SETTAPE)) {
-                    final int value = Integer.parseInt(commandArgs);
-                    cmd = (m) -> m.setTape(value);
-                } else if (commandName.equals(FUTURE_MOVE)) {
-                    final int value = Integer.parseInt(commandArgs);
-                    cmd = (m) -> m.move(value);
-                } else if (commandName.equals(FUTURE_GOTOPAGE)) {
-                    final int value = Integer.parseInt(commandArgs);
-                    cmd = (m) -> m.goToPage(value);
-                } else {
-                    throw new RuntimeException("Invalid command: " + commandName);
+                        Command cmd;
+
+                        if (innerCommandName.equals(FUTURE_STOP))
+                            cmd = TuringMachine::stop;
+                        else if (innerCommandName.equals(FUTURE_PRINT))
+                            cmd = TuringMachine::printTape;
+                        else if (innerCommandName.equals(POSITION))
+                            cmd = TuringMachine::printPosition;
+                        else if (innerCommandName.equals(READ_TAPE))
+                            cmd = TuringMachine::printTapeAt;
+
+                        else if (innerCommandName.equals(READ_AWARENESS))
+                            cmd = TuringMachine::printAwareness;
+                        else if (innerCommandName.equals(FUTURE_GOTONEXTSEC))
+                            cmd = TuringMachine::goToNextSection;
+                        else if (innerCommandName.equals(FUTURE_GOTOPREVSEC))
+                            cmd = TuringMachine::goToPrevSection;
+                        else if (innerCommandName.equals(FUTURE_GOTOPAGE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.goToPage(value);
+                        } else if (innerCommandName.equals(FUTURE_SETTAPE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.setTape(value);
+                        } else if (innerCommandName.equals(FUTURE_MOVE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.move(value);
+                        } else if (innerCommandName.equals(innerCommandArgs)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.goToPage(value);
+                        } else {
+                            throw new RuntimeException("Invalid command: " + innerCommandName);
+                        }
+                        turingMachine.addCommand(page, awareness, cmd, false);
+                    }
                 }
-                turingMachine.addCommand(page, awareness, cmd, false);
+            } else if (funcName.equals(PRINT)) {
+                String printString = funcArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                print(printString);
+            } else if (funcName.equals(RUN)) {
+                run();
+            } else {
+                throw new RuntimeException("Invalid command: " + funcName);
             }
-        }
 
 
-        // Matcher for run command
-        Matcher runMatcher = runPattern.matcher(program);
-        while (runMatcher.find()) {
-            run();
-        }
-
-        // Matcher for print command
-        Matcher printMatcher = printPattern.matcher(program);
-        while (printMatcher.find()) {
-            String printString = "";
-            try {
-                printString = printMatcher.group(1);
-            } catch (Exception e) {
-            }
-            print(printString);
         }
     }
 
+    public static int getValueOrConstant(String arg, Map<String, Integer> constants) {
+        if (constants.containsKey(arg)) {
+            return constants.get(arg);
+        } else {
+            try {
+                return Integer.parseInt(arg);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException("Invalid function argument: " + arg+" from "+constants);
+            }
+        }
+    }
+
+
     public static void setValues(String[] data) throws Exception {
-        if(!data[0].equals(SECTION_CHAR)) {
-            throw new Exception("First value must be "+SECTION_CHAR+" to indicate the start of the tape.");
+        if (!data[0].equals(SECTION_CHAR)) {
+            throw new Exception("First value must be " + SECTION_CHAR + " to indicate the start of the tape.");
         }
 
         // Parse valuesString and set the values on the Turing machine.
@@ -166,14 +179,14 @@ public class TuringInterpreter extends CommandList {
                 values[i] = Integer.parseInt(data[i]);
         }
         int pos = turingMachine.getPosition();
-        if(data[0].equals(SECTION_CHAR)) {
+        if (data[0].equals(SECTION_CHAR)) {
             pos += 1;
         }
         turingMachine = new TuringMachine(pos, values);
     }
 
     public static void setPosition(int position) {
-        if(turingMachine.getTapeAt(0) == SECTION) {
+        if (turingMachine.getTapeAt(0) == SECTION) {
             position += 1;
         }
         turingMachine.move(position - turingMachine.getPosition());
@@ -187,7 +200,7 @@ public class TuringInterpreter extends CommandList {
     }
 
     public static void print(String printString) {
-        if (printString == null) {
+        if (printString == null || Objects.equals(printString.strip(), "")) {
             turingMachine.printTape();
             return;
         }

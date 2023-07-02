@@ -1,18 +1,66 @@
+/*
+    Should apply and operation in a bitwise manner, leaving result in second "byte" while first is unchanged
+
+    Expected output:
+    Final result:
+    # 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2
+*/
 print("Starting turing machine...");
 
-setValues(# 2 0);
+setValues(# 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2);
 setPosition(0);
 
-//const setAmount = 3;
+const forward = 8;
+const back = -7;
+
+
+print();
+setCommand(
+    AWARENESS=0, PAGE=0,
+        ?move(forward)
+        ?goToPage(1)
+);
+
+setCommand(
+    AWARENESS=1, PAGE=0,
+        ?move(forward)
+        ?goToPage(2)
+);
+
 
 setCommand(
     AWARENESS=2, PAGE=0,
-        ?setTape(setAmount)
-        ?awareness()
         ?stop()
+);
 
+
+
+setCommand(
+    AWARENESS=0, PAGE=1,
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
+);
+setCommand(
+    AWARENESS=1, PAGE=1,
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
+);
+setCommand(
+    AWARENESS=0, PAGE=2,
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
+);
+setCommand(
+    AWARENESS=1, PAGE=2,
+        ?setTape(1)
+        ?move(back)
+        ?goToPage(0)
 );
 
 run();
-print("Finished.");
+
+print("Final result:");
 print();
