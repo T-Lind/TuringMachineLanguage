@@ -1,6 +1,6 @@
-package com.github.tlind.refactoredturingmachine.components;
+package com.github.tlind.turingmachine.components;
 
-import com.github.tlind.refactoredturingmachine.TuringMachine;
+import com.github.tlind.turingmachine.TuringMachine;
 
 public class StopCommand implements Command {
     @Override

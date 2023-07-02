@@ -10,73 +10,64 @@ public class CommandList {
     public static String CONNECTOR = "";
     public static String DEFINE = "define";
 
-    public static String POSITION = FUTURE_SYMBOL + CONNECTOR + "position";
-    public static String READ_TAPE = FUTURE_SYMBOL + CONNECTOR + "readTape()";
-    public static String READ_AWARENESS = FUTURE_SYMBOL + CONNECTOR + "awareness";
+    public static String POSITION = CONNECTOR + "position";
+    public static String READ_TAPE = CONNECTOR + "readTape";
+    public static String READ_AWARENESS = CONNECTOR + "awareness";
 
-    public static String DELIMITER_OPEN = "(";
-    public static String DELIMITER_CLOSE = ")";
-    public static String COMMENT = "//";
-    public static String[] BLOCK_COMMENT = {"/*", "*/"};
-    public static String INTEGERS = "-0123456789";
     public static String VAL = "const";
 
-    public static String PAGE = "PAGE=";
-    public static String AWARENESS = "AWARENESS=";
+    public static String PAGE = "PAGE";
+    public static String AWARENESS = "AWARENESS";
 
-    public static String INITIALIZE_VALUES = MACHINE_SYMBOL + CONNECTOR + "setValues";
-    public static String SET_POSITION = MACHINE_SYMBOL + CONNECTOR + "setPosition";
-    public static String GENERATE_MACHINE = MACHINE_SYMBOL + CONNECTOR + "generate()";
+    public static String INIT_PART = "setValues";
+    public static String SET_POS_PART = "setPosition";
+    public static String PRINT_PART = "print";
+    public static String CMD_PART = "setCommand";
 
-    public static String PRINT = MACHINE_SYMBOL + CONNECTOR + "print";
-    public static String FUTURE_PRINT = FUTURE_SYMBOL + CONNECTOR + "print";
-    public static String CMD = MACHINE_SYMBOL + CONNECTOR + "setCommand";
+    public static String STOP_PART = "stop";
+
+    public static String SETTAPE_PART = "setTape";
+
+    public static String MOVE_PART = "move";
+
+    public static String GO_TO_PAGE_PART = "goToPage";
+
+    public static String NEXT_SECTION_PART = "nextSection";
+
+    public static String PREV_SECTION_PART = "prevSection";
+
+    public static String RUN_PART = "run";
 
 
-    public static String FUTURE_STOP = FUTURE_SYMBOL + CONNECTOR + "stop()";
-    public static String FUTURE_SETTAPE = FUTURE_SYMBOL + CONNECTOR + "setTape";
-    public static String FUTURE_MOVE = FUTURE_SYMBOL + CONNECTOR + "move";
-    public static String FUTURE_GOTOPAGE = FUTURE_SYMBOL + CONNECTOR + "goToPage";
-    public static String FUTURE_GOTONEXTSEC = FUTURE_SYMBOL + CONNECTOR + "nextSection()";
-    public static String FUTURE_GOTOPREVSEC = FUTURE_SYMBOL + CONNECTOR + "prevSection()";
+    public static String INITIALIZE_VALUES = MACHINE_SYMBOL + CONNECTOR + INIT_PART;
+    public static String SET_POSITION = MACHINE_SYMBOL + CONNECTOR + SET_POS_PART;
 
-    public static String RUN = MACHINE_SYMBOL + CONNECTOR + "run()";
+    public static String PRINT = MACHINE_SYMBOL + CONNECTOR + PRINT_PART;
+    public static String FUTURE_PRINT = CONNECTOR + PRINT_PART;
+    public static String CMD = MACHINE_SYMBOL + CONNECTOR + CMD_PART;
+    public static String RUN = MACHINE_SYMBOL + CONNECTOR + RUN_PART;
+
+
+    public static String FUTURE_STOP = CONNECTOR + STOP_PART;
+    public static String FUTURE_SETTAPE = CONNECTOR + SETTAPE_PART;
+    public static String FUTURE_MOVE = CONNECTOR + MOVE_PART;
+    public static String FUTURE_GOTOPAGE = CONNECTOR + GO_TO_PAGE_PART;
+    public static String FUTURE_GOTONEXTSEC = CONNECTOR + NEXT_SECTION_PART;
+    public static String FUTURE_GOTOPREVSEC = CONNECTOR + PREV_SECTION_PART;
+
 
     public static void refreshList() {
-        refreshList(true);
-    }
-
-    public static void refreshList(boolean beforeFunction) {
-        if (beforeFunction) {
-            INITIALIZE_VALUES = MACHINE_SYMBOL + CONNECTOR + "setValues";
-            SET_POSITION = MACHINE_SYMBOL + CONNECTOR + "setPosition";
-            GENERATE_MACHINE = MACHINE_SYMBOL + CONNECTOR + "generate()";
-
-            PRINT = MACHINE_SYMBOL + CONNECTOR + "print";
-            FUTURE_PRINT = FUTURE_SYMBOL + CONNECTOR + "print";
-            CMD = MACHINE_SYMBOL + CONNECTOR + "setCommand";
-
-
-            FUTURE_STOP = FUTURE_SYMBOL + CONNECTOR + "stop()";
-            FUTURE_SETTAPE = FUTURE_SYMBOL + CONNECTOR + "setTape";
-            FUTURE_MOVE = FUTURE_SYMBOL + CONNECTOR + "move";
-            FUTURE_GOTOPAGE = FUTURE_SYMBOL + CONNECTOR + "goToPage";
-
-            RUN = MACHINE_SYMBOL + CONNECTOR + "run()";
-
-            FUTURE_GOTONEXTSEC = FUTURE_SYMBOL + CONNECTOR + "nextSection()";
-            FUTURE_GOTOPREVSEC = FUTURE_SYMBOL + CONNECTOR + "prevSection()";
-
-            POSITION = FUTURE_SYMBOL + CONNECTOR + "position";
-            READ_TAPE = FUTURE_SYMBOL + CONNECTOR + "readTape()";
-            READ_AWARENESS = FUTURE_SYMBOL + CONNECTOR + "awareness";
-        } else {
-            // TODO: Implement this feature for non-empty function calls
-            GENERATE_MACHINE = "generate()" + MACHINE_SYMBOL;
-            FUTURE_STOP = "stop()" + FUTURE_SYMBOL;
-            RUN = "run()" + MACHINE_SYMBOL;
-        }
-
-
+        INITIALIZE_VALUES = MACHINE_SYMBOL + CONNECTOR + INIT_PART;
+        SET_POSITION = MACHINE_SYMBOL + CONNECTOR + SET_POS_PART;
+        PRINT = MACHINE_SYMBOL + CONNECTOR + PRINT_PART;
+        FUTURE_PRINT = CONNECTOR + PRINT_PART;
+        CMD = MACHINE_SYMBOL + CONNECTOR + CMD_PART;
+        FUTURE_STOP = CONNECTOR + STOP_PART;
+        FUTURE_SETTAPE = CONNECTOR + SETTAPE_PART;
+        FUTURE_MOVE = CONNECTOR + MOVE_PART;
+        FUTURE_GOTOPAGE = CONNECTOR + GO_TO_PAGE_PART;
+        FUTURE_GOTONEXTSEC = CONNECTOR + NEXT_SECTION_PART;
+        FUTURE_GOTOPREVSEC = CONNECTOR + PREV_SECTION_PART;
+        RUN = MACHINE_SYMBOL + CONNECTOR + RUN_PART;
     }
 }

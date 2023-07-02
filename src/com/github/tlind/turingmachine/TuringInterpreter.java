@@ -1,175 +1,308 @@
 package com.github.tlind.turingmachine;
 
-
+import com.github.tlind.turingmachine.components.Command;
 import com.github.tlind.turingmachine.components.CommandList;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TuringInterpreter extends CommandList {
-    public static HashMap<String, String> mappedVars;
-    public static void main(String[] args) throws FileNotFoundException {
-        StringBuilder summedArgs = new StringBuilder();
-        for (String arg : args)
-            summedArgs.append(arg).append(" ");
 
-        var program = new File(summedArgs.toString());
-        var reader = new Scanner(program);
-        var readString = new StringBuilder();
-        mappedVars = new HashMap<>();
-        boolean inCommentBlock = false;
-        while (reader.hasNextLine()) {
-            var line = reader.nextLine();
-            if (line.startsWith(BLOCK_COMMENT[0]))
-                inCommentBlock = true;
-            if (!line.startsWith(COMMENT) && !inCommentBlock)
-                readString.append(line);
-            if (line.startsWith(BLOCK_COMMENT[1]))
-                inCommentBlock = false;
+    private static TuringMachine turingMachine;
+
+    public static void main(String[] args) throws Exception {
+        String program = readProgram(args);
+        executeProgram(program);
+    }
+
+    public static String readProgram(String[] args) throws FileNotFoundException {
+        StringBuilder readString = new StringBuilder();
+
+        if (args.length == 0) { // if no arguments, read from the terminal
+            Scanner terminalScanner = new Scanner(System.in);
+            String line = "";
+            while (!(line = terminalScanner.nextLine()).equals("RUN")) {
+                readString.append(line).append("\n");
+            }
+            terminalScanner.close();
+        } else { // else, read from the file specified in the command-line arguments
+            StringBuilder summedArgs = new StringBuilder();
+            for (String arg : args)
+                summedArgs.append(arg).append(" ");
+
+            File file = new File(summedArgs.toString());
+            Scanner fileScanner = new Scanner(file);
+            while (fileScanner.hasNextLine()) {
+                var line = fileScanner.nextLine();
+                readString.append(line).append("\n");
+            }
+            fileScanner.close();
         }
-        reader.close();
 
-        int[] values = null;
-        int startPosition = 0;
-        TuringMachine machine = null;
-        String[] lines = readString.toString().split(";");
-        for (String line : lines) {
-            if (line.startsWith(INITIALIZE_VALUES)) {
-                String[] data = getInsideDelimiters(line).split(" ");
-                values = new int[data.length];
-                for (int j = 0; j < data.length; j++) {
-                    if (data[j].equals(SECTION_CHAR)) {
-                        values[j] = SECTION;
-                    } else {
-                        values[j] = Integer.parseInt(data[j]);
+        return readString.toString();
+    }
+
+
+    public static void executeProgram(String program) throws Exception {
+        // Initialize the turing machine
+        turingMachine = new TuringMachine(new Integer(-1));
+
+        Map<String, Integer> constants = new HashMap<>();
+
+
+        // Remove all multiline comments
+        Pattern multiLineCommentPattern = Pattern.compile("/\\*.*?\\*/", Pattern.DOTALL);
+        program = multiLineCommentPattern.matcher(program).replaceAll("");
+
+        // Remove all single line comments
+        Pattern singleLineCommentPattern = Pattern.compile("//.*?$", Pattern.MULTILINE);
+        program = singleLineCommentPattern.matcher(program).replaceAll("");
+
+        // Define a pattern for the const declaration
+        Pattern constPattern = Pattern.compile(VAL + "\\s+(\\w+)\\s*=\\s*(-?\\d+)\\s*;");
+
+
+        // Create a matcher with the const pattern and your program string
+        Matcher constMatcher = constPattern.matcher(program);
+
+        // While the matcher finds const declarations
+        while (constMatcher.find()) {
+            // Extract the constant name and its value
+            String name = constMatcher.group(1);
+            int value = Integer.parseInt(constMatcher.group(2));
+
+            // Add the constant to the map
+            constants.put(name, value);
+        }
+
+        // Define a pattern for the define command
+        Pattern definePattern = Pattern.compile(DEFINE + "\\(\"(.*?)\",\\s*\"(.*?)\"\\);");
+
+        // Create a matcher with the define pattern and your program string
+        Matcher defineMatcher = definePattern.matcher(program);
+
+        // If the matcher finds a define command
+        HashMap<String, String> definedSymbols = new HashMap<>();
+        if (defineMatcher.find()) {
+            // Extract the constant name and its value
+            String name = defineMatcher.group(1);
+            String value = defineMatcher.group(2);
+            definedSymbols.put(name, value);
+        }
+
+        for (String key : definedSymbols.keySet()) {
+            switch (key) {
+                case "MACHINE_SYMBOL":
+                    MACHINE_SYMBOL = definedSymbols.get(key);
+                    break;
+                case "SECTION_CHAR":
+                    SECTION_CHAR = definedSymbols.get(key);
+                    break;
+                case "FUTURE_SYMBOL":
+                    FUTURE_SYMBOL = definedSymbols.get(key);
+                    break;
+                case "CONNECTOR":
+                    CONNECTOR = definedSymbols.get(key);
+                    break;
+                case "VAL":
+                    VAL = definedSymbols.get(key);
+                    break;
+                case "PAGE":
+                    PAGE = definedSymbols.get(key);
+                    break;
+                case "AWARENESS":
+                    AWARENESS = definedSymbols.get(key);
+                    break;
+                case "INITIALIZE_VALUES":
+                    INIT_PART = definedSymbols.get(key);
+                    break;
+                case "SET_POSITION":
+                    SET_POS_PART = definedSymbols.get(key);
+                    break;
+                case "PRINT":
+                    PRINT_PART = definedSymbols.get(key);
+                    break;
+                case "CMD":
+                    CMD = definedSymbols.get(key);
+                    break;
+                case "STOP":
+                    STOP_PART = definedSymbols.get(key);
+                    break;
+                case "SET_TAPE":
+                    SETTAPE_PART = definedSymbols.get(key);
+                    break;
+                case "MOVE":
+                    MOVE_PART = definedSymbols.get(key);
+                    break;
+                case "GO_TO_PAGE":
+                    GO_TO_PAGE_PART = definedSymbols.get(key);
+                    break;
+                case "NEXT_SECTION":
+                    NEXT_SECTION_PART = definedSymbols.get(key);
+                    break;
+                case "PREVIOUS_SECTION":
+                    PREV_SECTION_PART = definedSymbols.get(key);
+                    break;
+                case "RUN":
+                    RUN_PART = definedSymbols.get(key);
+                    break;
+                default:
+                    program = program.replace(definedSymbols.get(key), key);
+                    break;
+            }
+        }
+        refreshList();
+
+        Pattern defineContentRemoverPattern = Pattern.compile(DEFINE + "\\(\"(.*?)\", \"(.*?)\"\\);", Pattern.DOTALL);
+        Matcher defineContentRemoveMatcher = defineContentRemoverPattern.matcher(program);
+        program = defineContentRemoveMatcher.replaceAll(DEFINE + "(\"\"," + "\"\"");
+
+        Pattern defineRemoverPattern = Pattern.compile(DEFINE + "\\(\"\",\"\"", Pattern.DOTALL);
+        Matcher defineRemoveMatcher = defineRemoverPattern.matcher(program);
+        program = defineRemoveMatcher.replaceAll("");
+
+
+
+        Pattern anyFunctionPattern = Pattern.compile("(\\w+)\\((.*?)\\);", Pattern.DOTALL);
+
+        Matcher commandMatcher = anyFunctionPattern.matcher(program);
+        while (commandMatcher.find()) {
+            String funcName = commandMatcher.group(1);
+            String funcArgs = commandMatcher.group(2);
+
+
+            if (funcName.equals(DEFINE)) {
+                // Carve out exception for define
+                continue;
+            }
+
+            if (funcName.equals(INITIALIZE_VALUES)) {
+                String[] characterArray = funcArgs.split("\\s+"); // Split the characters by whitespace
+                setValues(characterArray);
+            } else if (funcName.equals(SET_POSITION)) {
+                int position = Integer.parseInt(funcArgs);
+                setPosition(position);
+            } else if (funcName.equals(CMD)) {
+                Matcher setCommandMatcher = Pattern.compile(AWARENESS + "=(-?\\d+),\\s*" + PAGE + "=(-?\\d+),\\s*(.*?)\\s*\\);", Pattern.DOTALL).matcher(funcArgs + ");");
+                if (setCommandMatcher.find()) {
+                    int awareness = Integer.parseInt(setCommandMatcher.group(1));
+                    int page = Integer.parseInt(setCommandMatcher.group(2));
+                    String commandDetails = setCommandMatcher.group(3);
+                    Matcher innerCommandMatcher = Pattern.compile("\\" + FUTURE_SYMBOL + "([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
+                    while (innerCommandMatcher.find()) {
+                        String innerCommandName = innerCommandMatcher.group(1);
+                        String innerCommandArgs = innerCommandMatcher.group(2);
+
+                        Command cmd;
+
+                        if (innerCommandName.equals(FUTURE_STOP))
+                            cmd = TuringMachine::stop;
+                        else if (innerCommandName.equals(FUTURE_PRINT)) {
+                            String printString = innerCommandArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                            if (Objects.equals(printString.strip(), "")) {
+                                cmd = TuringMachine::printTape;
+                            } else {
+                                cmd = (m) -> System.out.println(printString);
+                            }
+                        } else if (innerCommandName.equals(POSITION))
+                            cmd = TuringMachine::printPosition;
+                        else if (innerCommandName.equals(READ_TAPE))
+                            cmd = TuringMachine::printTapeAt;
+
+                        else if (innerCommandName.equals(READ_AWARENESS))
+                            cmd = TuringMachine::printAwareness;
+                        else if (innerCommandName.equals(FUTURE_GOTONEXTSEC))
+                            cmd = TuringMachine::goToNextSection;
+                        else if (innerCommandName.equals(FUTURE_GOTOPREVSEC))
+                            cmd = TuringMachine::goToPrevSection;
+                        else if (innerCommandName.equals(FUTURE_GOTOPAGE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.goToPage(value);
+                        } else if (innerCommandName.equals(FUTURE_SETTAPE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.setTape(value);
+                        } else if (innerCommandName.equals(FUTURE_MOVE)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.move(value);
+                        } else if (innerCommandName.equals(innerCommandArgs)) {
+                            final int value = getValueOrConstant(innerCommandArgs, constants);
+                            cmd = (m) -> m.goToPage(value);
+                        } else {
+                            throw new RuntimeException("Invalid command: " + innerCommandName);
+                        }
+                        turingMachine.addCommand(page, awareness, cmd, false);
                     }
                 }
-            } else if (line.startsWith(SET_POSITION)) {
-                startPosition = Integer.parseInt(getInsideDelimiters(line));
-            } else if (line.startsWith(VAL)) {
-                String[] items = line.split(" ");
-                mappedVars.put(items[1], items[3]);
-            } else if (line.startsWith(DEFINE)) {
-                String inside = getInsideDelimiters(line);
-                String symbol = inside.substring(inside.indexOf("\"") + 1, inside.lastIndexOf("\""));
+            } else if (funcName.equals(PRINT)) {
+                String printString = funcArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                print(printString);
+            } else if (funcName.equals(RUN)) {
+                run();
+            } else {
+                throw new RuntimeException("Invalid command: " + funcName);
+            }
 
 
-                if (inside.contains("MACHINE_SYMBOL"))
-                    MACHINE_SYMBOL = symbol;
-                else if (inside.contains("FUTURE_SYMBOL"))
-                    FUTURE_SYMBOL = symbol;
-                else if (inside.contains("CONNECTOR"))
-                    CONNECTOR = symbol;
-                else if (inside.contains("PAGE"))
-                    PAGE = symbol + "=";
-                else if (inside.contains("AWARENESS"))
-                    AWARENESS = symbol + "=";
-                else if (inside.contains("DELIMITER_OPEN"))
-                    DELIMITER_OPEN = symbol;
-                else if (inside.contains("DELIMITER_CLOSE"))
-                    DELIMITER_CLOSE = symbol;
-                else if (inside.contains("COMMENT"))
-                    COMMENT = symbol;
-                else if (inside.contains("BLOCK_COMMENT_START"))
-                    BLOCK_COMMENT[0] = symbol;
-                else if (inside.contains("BLOCK_COMMENT_END"))
-                    BLOCK_COMMENT[1] = symbol;
-                refreshList();
-            } else if (line.startsWith(GENERATE_MACHINE)) {
-                if (values == null) {
-                    machine = new TuringMachine(startPosition);
-                } else {
-                    machine = new TuringMachine(startPosition, values);
-                }
-            } else if (line.startsWith(PRINT)) {
-                String inside = getInsideDelimiters(line);
-                if (inside.length() == 0)
-                    machine.printTape();
-                else {
-                    System.out.println(inside.substring(1, inside.length() - 1));
-                }
-            } else if (line.startsWith(RUN)) {
-                machine.run();
-            } else if (line.startsWith(CMD)) {
-                String[] insides = getInsideDelimiters(line).strip().split(" ");
-                int page = 0;
-                int awareness = 0;
-                for (int k = 0; k < 2; k++) {
-                    var inside = insides[k];
-                    if (inside.startsWith(PAGE)) {
-                        page = onlyKeepInt(inside);
-                    } else if (inside.startsWith(AWARENESS)) {
-                        awareness = onlyKeepInt(inside);
-                    }
-                }
-                for (int k = 2; k < insides.length; k++) {
-                    var inside = insides[k];
-                    if (inside.equals(" "))
-                        continue;
-                    if (inside.startsWith(FUTURE_STOP)) {
-                        machine.addCommand(page, awareness, TuringMachine::stop, false);
-                    } else if (inside.startsWith(FUTURE_PRINT)) {
-                        String printStatement = getInsideDelimiters(inside);
-                        if (printStatement.length() == 0) {
-                            machine.addCommand(page, awareness, (m) -> m.printTape());
-                        }
-                        else if (printStatement.equals(POSITION)) {
-                            machine.addCommand(page, awareness, (m) -> m.printPosition());
-                        }
-                        else if (printStatement.equals(READ_TAPE)) {
-                            machine.addCommand(page, awareness, (m) -> m.printTapeAt());
-                        }
-                        else if (printStatement.equals(READ_AWARENESS)) {
-                            machine.addCommand(page, awareness, (m) -> m.printAwareness());
-                        }
-                        else {
-                            machine.addCommand(page, awareness, (m) -> System.out.println(printStatement.substring(1, printStatement.length() - 1)));
-                        }
-                    } else if (inside.startsWith(FUTURE_GOTONEXTSEC)) {
-                        machine.addCommand(page, awareness, (m) -> m.goToNextSection());
+        }
+    }
 
-                    } else if (inside.startsWith(FUTURE_GOTOPREVSEC)) {
-                        machine.addCommand(page, awareness, (m) -> m.goToPrevSection());
-                    } else if (inside.startsWith(FUTURE_SETTAPE)) {
-                        final int value = onlyKeepInt(getInsideDelimiters(inside));
-                        machine.addCommand(page, awareness, (m) -> m.setTape(value), false);
-                    } else if (inside.startsWith(FUTURE_MOVE)) {
-                        final int value = onlyKeepInt(getInsideDelimiters(inside));
-                        machine.addCommand(page, awareness, (m) -> {
-                            m.move(value);
-                        }, false);
-                    } else if (inside.startsWith(FUTURE_GOTOPAGE)) {
-                        final int value = onlyKeepInt(getInsideDelimiters(inside));
-                        machine.addCommand(page, awareness, (m) -> {
-                            m.goToPage(value);
-                        }, false);
-                    }
-                }
-                machine.addCommand(page, awareness, (m) -> m.setAwareness(m.getTape()));
+    public static int getValueOrConstant(String arg, Map<String, Integer> constants) {
+        if (constants.containsKey(arg)) {
+            return constants.get(arg);
+        } else {
+            try {
+                return Integer.parseInt(arg);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException("Invalid function argument: " + arg + " from " + constants);
             }
         }
     }
 
-    public static int onlyKeepInt(String input) {
-        for(String key: mappedVars.keySet())
-            if(input.contains(key)) {
-                var rest = input.substring(input.indexOf(key)+key.length());
-                if(rest.length() == 0)
-                    return Integer.parseInt(mappedVars.get(key));
-                return Integer.parseInt(mappedVars.get(key))+Integer.parseInt(rest);
-            }
-        var builder = new StringBuilder();
-        for (int i = 0; i < input.length(); i++) {
-            if (INTEGERS.contains(input.substring(i, i + 1))) {
-                builder.append(input.charAt(i));
-            }
+
+    public static void setValues(String[] data) throws Exception {
+        if (!data[0].equals(SECTION_CHAR)) {
+            throw new Exception("First value must be " + SECTION_CHAR + " to indicate the start of the tape.");
         }
-        return Integer.parseInt(builder.toString());
+
+        // Parse valuesString and set the values on the Turing machine.
+        int[] values = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            if (data[i].equals(SECTION_CHAR))
+                values[i] = SECTION;
+            else
+                values[i] = Integer.parseInt(data[i]);
+        }
+        int pos = turingMachine.getPosition();
+        if (data[0].equals(SECTION_CHAR)) {
+            pos += 1;
+        }
+        turingMachine = new TuringMachine(pos, values);
     }
 
-    private static String getInsideDelimiters(String s) {
-        return s.substring(s.indexOf(DELIMITER_OPEN) + 1, s.lastIndexOf(DELIMITER_CLOSE));
+    public static void setPosition(int position) {
+        if (turingMachine.getTapeAt(0) == SECTION) {
+            position += 1;
+        }
+        turingMachine.move(position - turingMachine.getPosition());
+        turingMachine.setAwareness(turingMachine.getTape());
+    }
+
+
+    public static void run() {
+        // Run the Turing machine.
+        turingMachine.run();
+    }
+
+    public static void print(String printString) {
+        if (printString == null || Objects.equals(printString.strip(), "")) {
+            turingMachine.printTape();
+            return;
+        }
+
+        // Handle the print command.
+        System.out.println(printString);
     }
 }
