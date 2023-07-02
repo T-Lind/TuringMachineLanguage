@@ -1,4 +1,7 @@
-define(FUTURE_SYMBOL, "!");
+define(FUTURE_SYMBOL, "?");
+define(MACHINE_SYMBOL, "!");
+
+define("!print("Tape:");!print();", "out;");
 /*
     Should apply and operation in a bitwise manner, leaving result in second "byte" while first is unchanged
 
@@ -6,61 +9,61 @@ define(FUTURE_SYMBOL, "!");
     Final result:
     # 1 0 1 0 1 1 1 -1 # 0 1 1 0 1 1 1 -1
 */
-print("Starting turing machine...");
 
-setValues(# 1 0 1 0 1 1 1 -1 # 0 1 1 0 1 1 1 -1);
-setPosition(0);
+!print("Starting turing machine...");
+!setValues(# 1 0 1 0 1 1 1 -1 # 0 1 1 0 1 1 1 -1);
+!setPosition(0);
 
 const forward = 8;
 const back = -7;
 
-print();
-setCommand(
+out;
+!setCommand(
     AWARENESS=0, PAGE=0,
-        !move(forward)
-        !goToPage(1)
+        ?move(forward)
+        ?goToPage(1)
 );
 
-setCommand(
+!setCommand(
     AWARENESS=1, PAGE=0,
-        !move(forward)
-        !goToPage(2)
+        ?move(forward)
+        ?goToPage(2)
 );
 
 
-setCommand(
+!setCommand(
     AWARENESS=-1, PAGE=0,
-        !stop()
+        ?stop()
 );
 
 
 
-setCommand(
+!setCommand(
     AWARENESS=0, PAGE=1,
-        !setTape(0)
-        !move(back)
-        !goToPage(0)
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
 );
-setCommand(
+!setCommand(
     AWARENESS=1, PAGE=1,
-        !setTape(0)
-        !move(back)
-        !goToPage(0)
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
 );
-setCommand(
+!setCommand(
     AWARENESS=0, PAGE=2,
-        !setTape(0)
-        !move(back)
-        !goToPage(0)
+        ?setTape(0)
+        ?move(back)
+        ?goToPage(0)
 );
-setCommand(
+!setCommand(
     AWARENESS=1, PAGE=2,
-        !setTape(1)
-        !move(back)
-        !goToPage(0)
+        ?setTape(1)
+        ?move(back)
+        ?goToPage(0)
 );
 
-run();
+!run();
 
-print("Final result:");
-print();
+!print("Final result:");
+out;

@@ -80,7 +80,7 @@ public class TuringInterpreter extends CommandList {
         }
 
         // Define a pattern for the define command
-        Pattern definePattern = Pattern.compile(DEFINE+"\\((\\w+),\\s*\"(.*?)\"\\);");
+        Pattern definePattern = Pattern.compile(DEFINE + "\\(\"(.*?)\",\\s*\"(.*?)\"\\);");
 
         // Create a matcher with the define pattern and your program string
         Matcher defineMatcher = definePattern.matcher(program);
@@ -94,45 +94,78 @@ public class TuringInterpreter extends CommandList {
             definedSymbols.put(name, value);
         }
 
-        for(String key : definedSymbols.keySet()){
-            if(key.equals("MACHINE_SYMBOL"))
-                MACHINE_SYMBOL = definedSymbols.get(key);
-            if(key.equals("SECTION_CHAR"))
-                SECTION_CHAR = definedSymbols.get(key);
-            if(key.equals("FUTURE_SYMBOL"))
-                FUTURE_SYMBOL = definedSymbols.get(key);
-            if(key.equals("CONNECTOR"))
-                CONNECTOR = definedSymbols.get(key);
-            if(key.equals("VAL"))
-                VAL = definedSymbols.get(key);
-            if(key.equals("PAGE"))
-                PAGE = definedSymbols.get(key);
-            if(key.equals("AWARENESS"))
-                AWARENESS = definedSymbols.get(key);
-            if(key.equals("INITIALIZE_VALUES"))
-                INIT_PART = definedSymbols.get(key);
-            if(key.equals("SET_POSITION"))
-                SET_POS_PART = definedSymbols.get(key);
-            if(key.equals("PRINT"))
-                PRINT_PART = definedSymbols.get(key);
-            if(key.equals("CMD"))
-                CMD = definedSymbols.get(key);
-            if(key.equals("STOP"))
-                STOP_PART = definedSymbols.get(key);
-            if(key.equals("SET_TAPE"))
-                SETTAPE_PART = definedSymbols.get(key);
-            if(key.equals("MOVE"))
-                MOVE_PART = definedSymbols.get(key);
-            if(key.equals("GO_TO_PAGE"))
-                GO_TO_PAGE_PART = definedSymbols.get(key);
-            if(key.equals("NEXT_SECTION"))
-                NEXT_SECTION_PART = definedSymbols.get(key);
-            if(key.equals("PREVIOUS_SECTION"))
-                PREV_SECTION_PART = definedSymbols.get(key);
-            if(key.equals("RUN"))
-                RUN_PART = definedSymbols.get(key);
+        for (String key : definedSymbols.keySet()) {
+            switch (key) {
+                case "MACHINE_SYMBOL":
+                    MACHINE_SYMBOL = definedSymbols.get(key);
+                    break;
+                case "SECTION_CHAR":
+                    SECTION_CHAR = definedSymbols.get(key);
+                    break;
+                case "FUTURE_SYMBOL":
+                    FUTURE_SYMBOL = definedSymbols.get(key);
+                    break;
+                case "CONNECTOR":
+                    CONNECTOR = definedSymbols.get(key);
+                    break;
+                case "VAL":
+                    VAL = definedSymbols.get(key);
+                    break;
+                case "PAGE":
+                    PAGE = definedSymbols.get(key);
+                    break;
+                case "AWARENESS":
+                    AWARENESS = definedSymbols.get(key);
+                    break;
+                case "INITIALIZE_VALUES":
+                    INIT_PART = definedSymbols.get(key);
+                    break;
+                case "SET_POSITION":
+                    SET_POS_PART = definedSymbols.get(key);
+                    break;
+                case "PRINT":
+                    PRINT_PART = definedSymbols.get(key);
+                    break;
+                case "CMD":
+                    CMD = definedSymbols.get(key);
+                    break;
+                case "STOP":
+                    STOP_PART = definedSymbols.get(key);
+                    break;
+                case "SET_TAPE":
+                    SETTAPE_PART = definedSymbols.get(key);
+                    break;
+                case "MOVE":
+                    MOVE_PART = definedSymbols.get(key);
+                    break;
+                case "GO_TO_PAGE":
+                    GO_TO_PAGE_PART = definedSymbols.get(key);
+                    break;
+                case "NEXT_SECTION":
+                    NEXT_SECTION_PART = definedSymbols.get(key);
+                    break;
+                case "PREVIOUS_SECTION":
+                    PREV_SECTION_PART = definedSymbols.get(key);
+                    break;
+                case "RUN":
+                    RUN_PART = definedSymbols.get(key);
+                    break;
+                default:
+                    program = program.replace(definedSymbols.get(key), key);
+                    break;
+            }
         }
         refreshList();
+
+        Pattern defineContentRemoverPattern = Pattern.compile(DEFINE + "\\(\"(.*?)\", \"(.*?)\"\\);", Pattern.DOTALL);
+        Matcher defineContentRemoveMatcher = defineContentRemoverPattern.matcher(program);
+        program = defineContentRemoveMatcher.replaceAll(DEFINE + "(\"\"," + "\"\"");
+
+        Pattern defineRemoverPattern = Pattern.compile(DEFINE + "\\(\"\",\"\"", Pattern.DOTALL);
+        Matcher defineRemoveMatcher = defineRemoverPattern.matcher(program);
+        program = defineRemoveMatcher.replaceAll("");
+
+
 
         Pattern anyFunctionPattern = Pattern.compile("(\\w+)\\((.*?)\\);", Pattern.DOTALL);
 
@@ -142,7 +175,7 @@ public class TuringInterpreter extends CommandList {
             String funcArgs = commandMatcher.group(2);
 
 
-            if(funcName.equals(DEFINE)){
+            if (funcName.equals(DEFINE)) {
                 // Carve out exception for define
                 continue;
             }
@@ -159,7 +192,7 @@ public class TuringInterpreter extends CommandList {
                     int awareness = Integer.parseInt(setCommandMatcher.group(1));
                     int page = Integer.parseInt(setCommandMatcher.group(2));
                     String commandDetails = setCommandMatcher.group(3);
-                    Matcher innerCommandMatcher = Pattern.compile("\\"+FUTURE_SYMBOL+"([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
+                    Matcher innerCommandMatcher = Pattern.compile("\\" + FUTURE_SYMBOL + "([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
                     while (innerCommandMatcher.find()) {
                         String innerCommandName = innerCommandMatcher.group(1);
                         String innerCommandArgs = innerCommandMatcher.group(2);
@@ -168,9 +201,14 @@ public class TuringInterpreter extends CommandList {
 
                         if (innerCommandName.equals(FUTURE_STOP))
                             cmd = TuringMachine::stop;
-                        else if (innerCommandName.equals(FUTURE_PRINT))
-                            cmd = TuringMachine::printTape;
-                        else if (innerCommandName.equals(POSITION))
+                        else if (innerCommandName.equals(FUTURE_PRINT)) {
+                            String printString = innerCommandArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                            if (Objects.equals(printString.strip(), "")) {
+                                cmd = TuringMachine::printTape;
+                            } else {
+                                cmd = (m) -> System.out.println(printString);
+                            }
+                        } else if (innerCommandName.equals(POSITION))
                             cmd = TuringMachine::printPosition;
                         else if (innerCommandName.equals(READ_TAPE))
                             cmd = TuringMachine::printTapeAt;
