@@ -3,16 +3,15 @@
 
     Expected output:
     Final result:
-    # 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2
+    # 1 0 1 0 1 1 1 -1 # 0 1 1 0 1 1 1 -1
 */
 print("Starting turing machine...");
 
-setValues(# 1 0 1 0 1 1 1 2 # 0 1 1 0 1 1 1 2);
+setValues(# 1 0 1 0 1 1 1 -1 # 0 1 1 0 1 1 1 -1);
 setPosition(0);
 
 const forward = 8;
 const back = -7;
-
 
 print();
 setCommand(
@@ -29,7 +28,7 @@ setCommand(
 
 
 setCommand(
-    AWARENESS=2, PAGE=0,
+    AWARENESS=-1, PAGE=0,
         ?stop()
 );
 

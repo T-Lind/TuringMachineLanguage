@@ -71,7 +71,6 @@ public class TuringInterpreter extends CommandList {
 
         // While the matcher finds const declarations
         while (constMatcher.find()) {
-            System.out.println("Found const declaration: " + constMatcher.group());
             // Extract the constant name and its value
             String name = constMatcher.group(1);
             int value = Integer.parseInt(constMatcher.group(2));
@@ -94,7 +93,7 @@ public class TuringInterpreter extends CommandList {
                 int position = Integer.parseInt(funcArgs);
                 setPosition(position);
             } else if (funcName.equals(CMD)) {
-                Matcher setCommandMatcher = Pattern.compile(AWARENESS + "=(\\d+),\\s*" + PAGE + "=(\\d+),\\s*(.*?)\\s*\\);", Pattern.DOTALL).matcher(funcArgs + ");");
+                Matcher setCommandMatcher = Pattern.compile(AWARENESS + "=(-?\\d+),\\s*" + PAGE + "=(-?\\d+),\\s*(.*?)\\s*\\);", Pattern.DOTALL).matcher(funcArgs + ");");
                 if (setCommandMatcher.find()) {
                     int awareness = Integer.parseInt(setCommandMatcher.group(1));
                     int page = Integer.parseInt(setCommandMatcher.group(2));
