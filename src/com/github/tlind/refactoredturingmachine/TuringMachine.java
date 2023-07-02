@@ -75,22 +75,6 @@ public class TuringMachine extends CommandList {
         pages.get(page).get(awareness).add(command);
     }
 
-    public void beginCommand(Integer page, Integer awareness) {
-        if (page >= pages.size())
-            pages.add(new HashMap<>());
-        if (pages.get(page) == null || pages.get(page).get(awareness) == null) {
-            pages.get(page).put(awareness, new ArrayList<>());
-        }
-        pages.get(page).get(awareness).add((m -> {
-            m.setAwareness(m.getTape());
-            m.printTape();
-        }));
-    }
-
-    public ArrayList<Command> getCommands(int page, int awareness) {
-        return pages.get(page).get(awareness);
-    }
-
     public int getPosition() {
         return position;
     }
@@ -143,6 +127,8 @@ public class TuringMachine extends CommandList {
             nextSectionFound = getTape().equals(SECTION);
             position++;
         }
+
+        awareness = getTape();
     }
 
     public void goToPrevSection() {
@@ -153,6 +139,8 @@ public class TuringMachine extends CommandList {
             position--;
         }
         position += 2;
+
+        awareness = getTape();
     }
 
     public void setTape(Integer value) {

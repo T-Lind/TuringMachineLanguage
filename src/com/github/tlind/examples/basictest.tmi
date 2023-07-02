@@ -1,3 +1,4 @@
+define(FUTURE_SYMBOL, "!");
 /*
     Should apply and operation in a bitwise manner, leaving result in second "byte" while first is unchanged
 
@@ -16,47 +17,47 @@ const back = -7;
 print();
 setCommand(
     AWARENESS=0, PAGE=0,
-        ?move(forward)
-        ?goToPage(1)
+        !move(forward)
+        !goToPage(1)
 );
 
 setCommand(
     AWARENESS=1, PAGE=0,
-        ?move(forward)
-        ?goToPage(2)
+        !move(forward)
+        !goToPage(2)
 );
 
 
 setCommand(
     AWARENESS=-1, PAGE=0,
-        ?stop()
+        !stop()
 );
 
 
 
 setCommand(
     AWARENESS=0, PAGE=1,
-        ?setTape(0)
-        ?move(back)
-        ?goToPage(0)
+        !setTape(0)
+        !move(back)
+        !goToPage(0)
 );
 setCommand(
     AWARENESS=1, PAGE=1,
-        ?setTape(0)
-        ?move(back)
-        ?goToPage(0)
+        !setTape(0)
+        !move(back)
+        !goToPage(0)
 );
 setCommand(
     AWARENESS=0, PAGE=2,
-        ?setTape(0)
-        ?move(back)
-        ?goToPage(0)
+        !setTape(0)
+        !move(back)
+        !goToPage(0)
 );
 setCommand(
     AWARENESS=1, PAGE=2,
-        ?setTape(1)
-        ?move(back)
-        ?goToPage(0)
+        !setTape(1)
+        !move(back)
+        !goToPage(0)
 );
 
 run();

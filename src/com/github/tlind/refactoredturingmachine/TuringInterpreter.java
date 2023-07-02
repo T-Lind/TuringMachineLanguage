@@ -79,12 +79,73 @@ public class TuringInterpreter extends CommandList {
             constants.put(name, value);
         }
 
+        // Define a pattern for the define command
+        Pattern definePattern = Pattern.compile(DEFINE+"\\((\\w+),\\s*\"(.*?)\"\\);");
+
+        // Create a matcher with the define pattern and your program string
+        Matcher defineMatcher = definePattern.matcher(program);
+
+        // If the matcher finds a define command
+        HashMap<String, String> definedSymbols = new HashMap<>();
+        if (defineMatcher.find()) {
+            // Extract the constant name and its value
+            String name = defineMatcher.group(1);
+            String value = defineMatcher.group(2);
+            definedSymbols.put(name, value);
+        }
+
+        for(String key : definedSymbols.keySet()){
+            if(key.equals("MACHINE_SYMBOL"))
+                MACHINE_SYMBOL = definedSymbols.get(key);
+            if(key.equals("SECTION_CHAR"))
+                SECTION_CHAR = definedSymbols.get(key);
+            if(key.equals("FUTURE_SYMBOL"))
+                FUTURE_SYMBOL = definedSymbols.get(key);
+            if(key.equals("CONNECTOR"))
+                CONNECTOR = definedSymbols.get(key);
+            if(key.equals("VAL"))
+                VAL = definedSymbols.get(key);
+            if(key.equals("PAGE"))
+                PAGE = definedSymbols.get(key);
+            if(key.equals("AWARENESS"))
+                AWARENESS = definedSymbols.get(key);
+            if(key.equals("INITIALIZE_VALUES"))
+                INIT_PART = definedSymbols.get(key);
+            if(key.equals("SET_POSITION"))
+                SET_POS_PART = definedSymbols.get(key);
+            if(key.equals("PRINT"))
+                PRINT_PART = definedSymbols.get(key);
+            if(key.equals("CMD"))
+                CMD = definedSymbols.get(key);
+            if(key.equals("STOP"))
+                STOP_PART = definedSymbols.get(key);
+            if(key.equals("SET_TAPE"))
+                SETTAPE_PART = definedSymbols.get(key);
+            if(key.equals("MOVE"))
+                MOVE_PART = definedSymbols.get(key);
+            if(key.equals("GO_TO_PAGE"))
+                GO_TO_PAGE_PART = definedSymbols.get(key);
+            if(key.equals("NEXT_SECTION"))
+                NEXT_SECTION_PART = definedSymbols.get(key);
+            if(key.equals("PREVIOUS_SECTION"))
+                PREV_SECTION_PART = definedSymbols.get(key);
+            if(key.equals("RUN"))
+                RUN_PART = definedSymbols.get(key);
+        }
+        refreshList();
+
         Pattern anyFunctionPattern = Pattern.compile("(\\w+)\\((.*?)\\);", Pattern.DOTALL);
 
         Matcher commandMatcher = anyFunctionPattern.matcher(program);
         while (commandMatcher.find()) {
             String funcName = commandMatcher.group(1);
             String funcArgs = commandMatcher.group(2);
+
+
+            if(funcName.equals(DEFINE)){
+                // Carve out exception for define
+                continue;
+            }
 
             if (funcName.equals(INITIALIZE_VALUES)) {
                 String[] characterArray = funcArgs.split("\\s+"); // Split the characters by whitespace
@@ -98,7 +159,7 @@ public class TuringInterpreter extends CommandList {
                     int awareness = Integer.parseInt(setCommandMatcher.group(1));
                     int page = Integer.parseInt(setCommandMatcher.group(2));
                     String commandDetails = setCommandMatcher.group(3);
-                    Matcher innerCommandMatcher = Pattern.compile("\\?([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
+                    Matcher innerCommandMatcher = Pattern.compile("\\"+FUTURE_SYMBOL+"([^\\s(]+)\\((.*?)\\)").matcher(commandDetails);
                     while (innerCommandMatcher.find()) {
                         String innerCommandName = innerCommandMatcher.group(1);
                         String innerCommandArgs = innerCommandMatcher.group(2);
@@ -158,7 +219,7 @@ public class TuringInterpreter extends CommandList {
             try {
                 return Integer.parseInt(arg);
             } catch (NumberFormatException e) {
-                throw new NumberFormatException("Invalid function argument: " + arg+" from "+constants);
+                throw new NumberFormatException("Invalid function argument: " + arg + " from " + constants);
             }
         }
     }
