@@ -1,7 +1,6 @@
 @echo off
-
 if "%~1"=="" (
-    java -classpath "C:\Program Files (x86)\T-Lind\Turing Machine Language" org.tlind.turingmachine.TuringInterpreter
+    java -classpath "%TML_PATH%" com.github.tlind.turingmachine.TuringInterpreter
 ) else (
-    java -classpath "C:\Program Files (x86)\T-Lind\Turing Machine Language" org.tlind.turingmachine.TuringInterpreter %1
+    java -classpath "%TML_PATH%" com.github.tlind.turingmachine.TuringInterpreter %1
 )
