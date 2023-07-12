@@ -97,6 +97,8 @@ public class TuringMachine extends CommandList {
                     command.invoke(this);
                 }
             } else {
+                if (awareness == NONE_INT)
+                        new TML_Exception("No commands specified for page " + page + " and awareness '" + NONE_CHAR + "' (none, with NONE_INT=" + NONE_INT + ")");
                 new TML_Exception("No commands specified for page " + page + " and awareness " + awareness);
             }
         }
@@ -154,11 +156,21 @@ public class TuringMachine extends CommandList {
     }
 
     public Integer getTape() {
-        return tape.get(position);
+        Integer result = tape.get(position);
+        if (result == null)
+            return NONE_INT;
+        return result;
+    }
+
+    public String getTapeString() {
+        Integer item = getTape();
+        if (item == NONE_INT)
+            return NONE_CHAR;
+        return item.toString();
     }
 
     public void printTapeAt() {
-        System.out.println("Current value: " + getTape());
+        System.out.println("Current value: " + getTapeString());
     }
 
     public void printTapeAt(String fmt) {
@@ -190,14 +202,14 @@ public class TuringMachine extends CommandList {
         }
         for (int i = min; i <= max; i++) {
             var value = tape.get(i);
-            if (value != null) {
+            if (value != NONE_INT) {
                 if (value != SECTION)
                     printStr.append(tape.get(i)).append(" ");
                 else {
                     printStr.append(SECTION_CHAR).append(" ");
                 }
             } else {
-                printStr.append("_ ");
+                printStr.append(NONE_CHAR).append(" ");
             }
         }
         printf(printStr.toString(), fmt);

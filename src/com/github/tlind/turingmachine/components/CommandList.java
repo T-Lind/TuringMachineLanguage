@@ -5,6 +5,9 @@ public class CommandList {
     public static int SECTION = Integer.MIN_VALUE;
     public static String SECTION_CHAR = "#";
 
+    public static String NONE_CHAR = "_";
+    public static int NONE_INT = Integer.MAX_VALUE - 1;
+
     public static String MACHINE_SYMBOL = "";
     public static String FUTURE_SYMBOL = "?";
     public static String CONNECTOR = "";
