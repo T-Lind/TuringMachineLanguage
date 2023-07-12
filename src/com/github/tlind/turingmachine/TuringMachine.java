@@ -3,9 +3,11 @@ package com.github.tlind.turingmachine;
 
 import com.github.tlind.turingmachine.components.Command;
 import com.github.tlind.turingmachine.components.CommandList;
+import com.github.tlind.turingmachine.components.TML_Exception;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Set;
 
 public class TuringMachine extends CommandList {
@@ -83,6 +85,10 @@ public class TuringMachine extends CommandList {
         System.out.println("Position: " + position);
     }
 
+    public void printPosition(String fmt) {
+        printf("Position: " + position, fmt);
+    }
+
     public void run() {
         while (page != STOP) {
             var commands = pages.get(page).get(awareness);
@@ -91,7 +97,7 @@ public class TuringMachine extends CommandList {
                     command.invoke(this);
                 }
             } else {
-                throw new NullPointerException("No commands specified for page " + page + " and awareness " + awareness);
+                new TML_Exception("No commands specified for page " + page + " and awareness " + awareness);
             }
         }
     }
@@ -155,11 +161,23 @@ public class TuringMachine extends CommandList {
         System.out.println("Current value: " + getTape());
     }
 
+    public void printTapeAt(String fmt) {
+        printf("Current value: " + getTape(), fmt);
+    }
+
     public void printAwareness() {
         System.out.println("Current awareness: " + awareness);
     }
 
+    public void printAwareness(String fmt) {
+        printf("Current awareness: " + awareness, fmt);
+    }
+
     public void printTape() {
+        printTape("yellow bold");
+    }
+
+    public void printTape(String fmt) {
         var printStr = new StringBuilder();
         Set<Integer> keys = tape.keySet();
         int max = Integer.MIN_VALUE;
@@ -182,7 +200,7 @@ public class TuringMachine extends CommandList {
                 printStr.append("_ ");
             }
         }
-        System.out.println(printStr);
+        printf(printStr.toString(), fmt);
     }
 
     public void goToPage(int pageNum) {
@@ -213,5 +231,105 @@ public class TuringMachine extends CommandList {
 
     public int getTapeAt(int position) {
         return tape.get(position);
+    }
+
+
+    public static void printf(String text, String format) {
+        text = text.replace("\\n", "\n").replace("\\t", "\t");
+        if (format.equals("")) {
+            if (text.contains("<<<")) {
+                text = text.replace("<<<", "");
+                System.out.print(text);
+            } else {
+                System.out.println(text);
+            }
+            return;
+        }
+
+        String[] parts = format.split(" ");
+        String colorCode = "", styleCode = "";
+
+        for (String part : parts) {
+            switch (part.toLowerCase()) {
+                case "black":
+                    colorCode = "\u001B[30m";
+                    break;
+                case "red":
+                    colorCode = "\u001B[31m";
+                    break;
+                case "green":
+                    colorCode = "\u001B[32m";
+                    break;
+                case "yellow":
+                    colorCode = "\u001B[33m";
+                    break;
+                case "blue":
+                    colorCode = "\u001B[34m";
+                    break;
+                case "purple":
+                    colorCode = "\u001B[35m";
+                    break;
+                case "cyan":
+                    colorCode = "\u001B[36m";
+                    break;
+                case "white":
+                    colorCode = "\u001B[37m";
+                    break;
+                case "bright_black":
+                    colorCode = "\u001B[90m";
+                    break;
+                case "bright_red":
+                    colorCode = "\u001B[91m";
+                    break;
+                case "bright_green":
+                    colorCode = "\u001B[92m";
+                    break;
+                case "bright_yellow":
+                    colorCode = "\u001B[93m";
+                    break;
+                case "bright_blue":
+                    colorCode = "\u001B[94m";
+                    break;
+                case "bright_purple":
+                    colorCode = "\u001B[95m";
+                    break;
+                case "bright_cyan":
+                    colorCode = "\u001B[96m";
+                    break;
+                case "bright_white":
+                    colorCode = "\u001B[97m";
+                    break;
+                case "bold":
+                    styleCode = "\u001B[1m";
+                    break;
+                case "italic":
+                    styleCode = "\u001B[3m";
+                    break;
+                case "underline":
+                    styleCode = "\u001B[4m";
+                    break;
+                case "strikethrough":
+                    styleCode = "\u001B[9m";
+                    break;
+                default:
+                    new TML_Exception("Invalid print color/style option: " + part);
+            }
+        }
+        if (text.contains("<<<")) {
+            text = text.replace("<<<", "");
+            System.out.print(colorCode + styleCode + text + "\u001B[0m");
+        } else {
+            System.out.println(colorCode + styleCode + text + "\u001B[0m");
+        }
+    }
+
+    public void print(String printString, String fmt) {
+        if (printString == null || Objects.equals(printString.strip(), "")) {
+            printTape();
+            return;
+        }
+
+        // Handle the print command.
+        TuringMachine.printf(printString, fmt);
     }
 }

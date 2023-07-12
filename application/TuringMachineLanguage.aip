@@ -10,10 +10,10 @@
     <ROW Property="ARPPRODUCTICON" Value="logo.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://txkl.gitbook.io/tml/"/>
     <ROW Property="Manufacturer" Value="T-Lind"/>
-    <ROW Property="ProductCode" Value="1033:{3ADC1C1E-C122-45DF-9964-6832098AA086} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{CC6BCDF1-0F00-40FB-86BB-8EFA93E3B89B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Turing Machine Language"/>
-    <ROW Property="ProductVersion" Value="1.1.0" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.2.17" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{376EB9BA-FF33-4316-A331-D3D2361C6FC2}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -38,11 +38,11 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{9A1E15F0-3611-4773-96DE-CB4A7113CDCE}" Directory_="APPDIR" Attributes="0"/>
-    <ROW Component="Command.class" ComponentId="{855B7377-B185-4154-B053-0279ED08F8EA}" Directory_="components_Dir" Attributes="0" KeyPath="Command.class" Type="0"/>
+    <ROW Component="Command.class" ComponentId="{D80C66E7-6F07-4577-BB9D-66FB2282A6C4}" Directory_="components_Dir" Attributes="0" KeyPath="Command.class" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{6A1CDB06-07E6-4209-9104-974A996AC601}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="RunTuringMachineManual.class" ComponentId="{86BA42BC-9C01-45D5-9BF8-5CCB70D88270}" Directory_="turingmachine_Dir" Attributes="0" KeyPath="RunTuringMachineManual.class" Type="0"/>
-    <ROW Component="basictest.tmi" ComponentId="{78501466-1E81-4981-A472-B97D27C0EF13}" Directory_="examples_Dir" Attributes="0" KeyPath="basictest.tmi" Type="0"/>
-    <ROW Component="tm.bat" ComponentId="{685234A8-A337-4B6B-9556-16D9DF25559B}" Directory_="TuringMachineLanguage_Dir" Attributes="0" KeyPath="tm.bat" Type="0"/>
+    <ROW Component="RunTuringMachineManual.class" ComponentId="{81EFBF15-901E-4687-A5BD-CB9BBB48A48C}" Directory_="turingmachine_Dir" Attributes="0" KeyPath="RunTuringMachineManual.class" Type="0"/>
+    <ROW Component="basictest.tmi" ComponentId="{7003BFE2-FA3D-4402-B4D0-DC9DBB64230C}" Directory_="examples_Dir" Attributes="0" KeyPath="basictest.tmi" Type="0"/>
+    <ROW Component="tm.bat" ComponentId="{AFC1586F-4C5D-41BE-9B7B-25FF1AC135B4}" Directory_="TuringMachineLanguage_Dir" Attributes="0" KeyPath="tm.bat" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
@@ -59,7 +59,8 @@
     <ROW File="RunTuringMachineManual.class" Component_="RunTuringMachineManual.class" FileName="RUNTUR~1.CLA|RunTuringMachineManual.class" Attributes="0" SourcePath="..\out\production\TuringMachineLanguage\com\github\tlind\turingmachine\RunTuringMachineManual.class" SelfReg="false"/>
     <ROW File="TuringInterpreter.class" Component_="RunTuringMachineManual.class" FileName="TURING~1.CLA|TuringInterpreter.class" Attributes="0" SourcePath="..\out\production\TuringMachineLanguage\com\github\tlind\turingmachine\TuringInterpreter.class" SelfReg="false"/>
     <ROW File="TuringMachine.class" Component_="RunTuringMachineManual.class" FileName="TURING~2.CLA|TuringMachine.class" Attributes="0" SourcePath="..\out\production\TuringMachineLanguage\com\github\tlind\turingmachine\TuringMachine.class" SelfReg="false"/>
-    <ROW File="tm.bat" Component_="tm.bat" FileName="tm.bat" Attributes="0" SourcePath="..\src\tm.bat" SelfReg="false"/>
+    <ROW File="tm.bat" Component_="tm.bat" FileName="tm.bat" Attributes="0" SourcePath="..\out\production\TuringMachineLanguage\tm.bat" SelfReg="false"/>
+    <ROW File="TML_Exception.class" Component_="Command.class" FileName="TML_EX~1.CLA|TML_Exception.class" Attributes="0" SourcePath="..\out\production\TuringMachineLanguage\com\github\tlind\turingmachine\components\TML_Exception.class" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>

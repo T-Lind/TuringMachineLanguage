@@ -1,5 +1,5 @@
 package com.github.tlind.turingmachine.components;
-
+// comment
 public class CommandList {
     public static int STOP = Integer.MAX_VALUE;
     public static int SECTION = Integer.MIN_VALUE;
@@ -10,9 +10,9 @@ public class CommandList {
     public static String CONNECTOR = "";
     public static String DEFINE = "define";
 
-    public static String POSITION = CONNECTOR + "position";
+    public static String POSITION = CONNECTOR + "printPosition";
     public static String READ_TAPE = CONNECTOR + "readTape";
-    public static String READ_AWARENESS = CONNECTOR + "awareness";
+    public static String READ_AWARENESS = CONNECTOR + "printAwareness";
 
     public static String VAL = "const";
 

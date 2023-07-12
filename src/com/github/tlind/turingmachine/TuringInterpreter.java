@@ -2,6 +2,7 @@ package com.github.tlind.turingmachine;
 
 import com.github.tlind.turingmachine.components.Command;
 import com.github.tlind.turingmachine.components.CommandList;
+import com.github.tlind.turingmachine.components.TML_Exception;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,7 +47,7 @@ public class TuringInterpreter extends CommandList {
     }
 
 
-    public static void executeProgram(String program) throws Exception {
+    public static void executeProgram(String program) {
         // Initialize the turing machine
         turingMachine = new TuringMachine(new Integer(-1));
 
@@ -165,7 +166,6 @@ public class TuringInterpreter extends CommandList {
         program = defineRemoveMatcher.replaceAll("");
 
 
-
         Pattern anyFunctionPattern = Pattern.compile("(\\w+)\\((.*?)\\);", Pattern.DOTALL);
 
         Matcher commandMatcher = anyFunctionPattern.matcher(program);
@@ -201,12 +201,33 @@ public class TuringInterpreter extends CommandList {
                         if (innerCommandName.equals(FUTURE_STOP))
                             cmd = TuringMachine::stop;
                         else if (innerCommandName.equals(FUTURE_PRINT)) {
-                            String printString = innerCommandArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
-                            if (Objects.equals(printString.strip(), "")) {
+                            if (Objects.equals(innerCommandArgs.strip(), "")) {
                                 cmd = TuringMachine::printTape;
                             } else {
-                                cmd = (m) -> System.out.println(printString);
+                                Pattern pattern = Pattern.compile("^\"(.*?)\"(\\.fmt\\(\"(.*?)\"\\))?$");
+                                Matcher matcher = pattern.matcher(innerCommandArgs);
+
+                                if (matcher.find()) {
+                                    String printString = matcher.group(1); // the main string
+                                    String formatString = matcher.group(3); // the format string (or null if it doesn't exist)
+
+                                    printString = printString.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+
+                                    if (formatString != null) {
+                                        formatString = formatString.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                                    } else {
+                                        formatString = "";
+                                    }
+
+                                    String finalPrintString = printString;
+                                    String finalFormatString = formatString;
+                                    cmd = (m) -> TuringMachine.printf(finalPrintString, finalFormatString);
+                                } else {
+                                    cmd = null;
+                                }
+
                             }
+
                         } else if (innerCommandName.equals(POSITION))
                             cmd = TuringMachine::printPosition;
                         else if (innerCommandName.equals(READ_TAPE))
@@ -231,18 +252,39 @@ public class TuringInterpreter extends CommandList {
                             final int value = getValueOrConstant(innerCommandArgs, constants);
                             cmd = (m) -> m.goToPage(value);
                         } else {
-                            throw new RuntimeException("Invalid command: " + innerCommandName);
+                            new TML_Exception("Invalid future function: " + innerCommandName);
+                            cmd = null;
                         }
                         turingMachine.addCommand(page, awareness, cmd, false);
                     }
                 }
             } else if (funcName.equals(PRINT)) {
-                String printString = funcArgs.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
-                print(printString);
+                if (funcArgs == null || funcArgs.length() == 0) {
+                    turingMachine.printTape();
+                    continue;
+                }
+
+                Pattern pattern = Pattern.compile("^\"(.*?)\"(\\.fmt\\(\"(.*?)\"\\))?$");
+                Matcher matcher = pattern.matcher(funcArgs);
+
+                if (matcher.find()) {
+                    String printString = matcher.group(1); // the main string
+                    String formatString = matcher.group(3); // the format string (or null if it doesn't exist)
+
+                    printString = printString.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+
+                    if (formatString != null) {
+                        formatString = formatString.replaceAll("^\"|\"$", ""); // remove quotation marks from the beginning and end of the string
+                    } else {
+                        formatString = "";
+                    }
+
+                    print(printString, formatString);
+                }
             } else if (funcName.equals(RUN)) {
                 run();
             } else {
-                throw new RuntimeException("Invalid command: " + funcName);
+                new TML_Exception("Invalid function: " + funcName);
             }
 
 
@@ -255,16 +297,17 @@ public class TuringInterpreter extends CommandList {
         } else {
             try {
                 return Integer.parseInt(arg);
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException("Invalid function argument: " + arg + " from " + constants);
+            } catch (Exception e) {
+                new TML_Exception("Invalid function argument: " + arg + " from " + constants);
+                return 0;
             }
         }
     }
 
 
-    public static void setValues(String[] data) throws Exception {
+    public static void setValues(String[] data) {
         if (!data[0].equals(SECTION_CHAR)) {
-            throw new Exception("First value must be " + SECTION_CHAR + " to indicate the start of the tape.");
+            new TML_Exception("First value must be " + SECTION_CHAR + " to indicate the start of the tape.");
         }
 
         // Parse valuesString and set the values on the Turing machine.
@@ -297,12 +340,16 @@ public class TuringInterpreter extends CommandList {
     }
 
     public static void print(String printString) {
+        print(printString, "");
+    }
+
+    public static void print(String printString, String fmt) {
         if (printString == null || Objects.equals(printString.strip(), "")) {
             turingMachine.printTape();
             return;
         }
 
         // Handle the print command.
-        System.out.println(printString);
+        TuringMachine.printf(printString, fmt);
     }
 }
